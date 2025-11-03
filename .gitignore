@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite database
+db.sqlite3
+*.db
+
+# Environment variables
+.env
+
+# Virtual environment
+venv/
+.venv/
+
+# PyCharm settings
+.idea/
+
+# Logs
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
