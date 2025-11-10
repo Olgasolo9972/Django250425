@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from test_app.views import hello_user
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),# http://127.0.0.1:8000/admin/
+    path('<str:user_name>/', hello_user),
 ]
