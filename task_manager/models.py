@@ -1,6 +1,7 @@
 from django.db import models
 
 
+
 STATUS_CHOICES = [
     ("new", "new"),
     ("progress", "progress"),
