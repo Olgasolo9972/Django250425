@@ -1,57 +1,52 @@
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.utils import timezone
-from django.db.models import Count
-from task_manager.models import Task
-from task_manager.serializers import TaskSerializer
+from task_manager.models import SubTask
+from .serializers import SubTaskCreateSerializer, SubTaskSerializer
+
+# SubTask List and Create
+class SubTaskListCreateView(APIView):
+    def get(self, request):
+        subtasks = SubTask.objects.all()
+        serializer = SubTaskSerializer(subtasks, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = SubTaskCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Задание 1: Создание задачи
-@api_view(['POST'])
-def create_task(request):
-    serializer = TaskSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# SubTask Detail, Update and Delete
+class SubTaskDetailUpdateDeleteView(APIView):
+    def get_object(self, pk):
+        try:
+            return SubTask.objects.get(pk=pk)
+        except SubTask.DoesNotExist:
+            return None
 
+    def get(self, request, pk):
+        subtask = self.get_object(pk)
+        if not subtask:
+            return Response({"error": "SubTask not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = SubTaskSerializer(subtask)
+        return Response(serializer.data)
 
-# Задание 2: Список задач
-@api_view(['GET'])
-def list_tasks(request):
-    tasks = Task.objects.all()
-    serializer = TaskSerializer(tasks, many=True)
-    return Response(serializer.data)
+    def put(self, request, pk):
+        subtask = self.get_object(pk)
+        if not subtask:
+            return Response({"error": "SubTask not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = SubTaskCreateSerializer(subtask, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# Задание 2: Конкретная задача
-@api_view(['GET'])
-def get_task(request, id):
-    try:
-        task = Task.objects.get(id=id)
-    except Task.DoesNotExist:
-        return Response({"error": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = TaskSerializer(task)
-    return Response(serializer.data)
-
-
-# Задание 3: Статистика
-@api_view(['GET'])
-def task_stats(request):
-    total_tasks = Task.objects.count()
-
-    status_stats = (
-        Task.objects
-        .values("status")
-        .annotate(count=Count("status"))
-    )
-
-    overdue_tasks = Task.objects.filter(deadline__lt=timezone.now()).count()
-
-    return Response({
-        "total_tasks": total_tasks,
-        "status_stats": status_stats,
-        "overdue_tasks": overdue_tasks,
-    })
+    def delete(self, request, pk):
+        subtask = self.get_object(pk)
+        if not subtask:
+            return Response({"error": "SubTask not found"}, status=status.HTTP_404_NOT_FOUND)
+        subtask.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
