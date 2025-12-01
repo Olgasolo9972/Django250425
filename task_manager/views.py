@@ -1,52 +1,68 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from task_manager.models import SubTask
-from .serializers import SubTaskCreateSerializer, SubTaskSerializer
+from rest_framework.pagination import PageNumberPagination
+from django.utils import timezone
+from task_manager.models import Task, SubTask
+from .serializers import TaskDetailSerializer, SubTaskSerializer
 
-# SubTask List and Create
-class SubTaskListCreateView(APIView):
+
+# Задание 1: Фильтр задач по дню недели
+class TaskByWeekdayView(APIView):
     def get(self, request):
-        subtasks = SubTask.objects.all()
-        serializer = SubTaskSerializer(subtasks, many=True)
+        weekday_param = request.query_params.get('weekday', None)
+        tasks = Task.objects.all()
+
+        if weekday_param:
+            weekday_param = weekday_param.lower()
+            days = {
+                'monday': 0,
+                'tuesday': 1,
+                'wednesday': 2,
+                'thursday': 3,
+                'friday': 4,
+                'saturday': 5,
+                'sunday': 6
+            }
+            day_index = days.get(weekday_param)
+            if day_index is not None:
+                tasks = tasks.filter(deadline__week_day=(day_index + 1))
+            else:
+                return Response({"error": "Invalid weekday"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = TaskDetailSerializer(tasks, many=True)
         return Response(serializer.data)
 
-    def post(self, request):
-        serializer = SubTaskCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Задание 2: Пагинация подзадач
+class SubTaskPagination(PageNumberPagination):
+    page_size = 5
+    ordering = '-created_at'
 
 
-# SubTask Detail, Update and Delete
-class SubTaskDetailUpdateDeleteView(APIView):
-    def get_object(self, pk):
-        try:
-            return SubTask.objects.get(pk=pk)
-        except SubTask.DoesNotExist:
-            return None
+class SubTaskListView(APIView):
+    def get(self, request):
+        subtasks = SubTask.objects.all().order_by('-created_at')
+        paginator = SubTaskPagination()
+        page = paginator.paginate_queryset(subtasks, request)
+        serializer = SubTaskSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
-    def get(self, request, pk):
-        subtask = self.get_object(pk)
-        if not subtask:
-            return Response({"error": "SubTask not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = SubTaskSerializer(subtask)
-        return Response(serializer.data)
 
-    def put(self, request, pk):
-        subtask = self.get_object(pk)
-        if not subtask:
-            return Response({"error": "SubTask not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = SubTaskCreateSerializer(subtask, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# Задание 3: Фильтр подзадач по задаче и статусу
+class SubTaskFilterView(APIView):
+    def get(self, request):
+        task_name = request.query_params.get('task_name', None)
+        status_param = request.query_params.get('status', None)
 
-    def delete(self, request, pk):
-        subtask = self.get_object(pk)
-        if not subtask:
-            return Response({"error": "SubTask not found"}, status=status.HTTP_404_NOT_FOUND)
-        subtask.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        subtasks = SubTask.objects.all().order_by('-created_at')
+
+        if task_name:
+            subtasks = subtasks.filter(task__title__icontains=task_name)
+        if status_param:
+            subtasks = subtasks.filter(status=status_param)
+
+        paginator = SubTaskPagination()
+        page = paginator.paginate_queryset(subtasks, request)
+        serializer = SubTaskSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
