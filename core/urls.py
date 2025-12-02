@@ -20,8 +20,7 @@ from django.urls import path, include
 from test_app.views import hello_user
 
 urlpatterns = [
-    path('admin/', admin.site.urls),# http://127.0.0.1:8000/admin/
+    path('admin/', admin.site.urls),                  # http://127.0.0.1:8000/admin/
+    path('api/', include('task_manager.urls')),       # http://127.0.0.1:8000/api/tasks/
     path('<str:user_name>/', hello_user),
-    path('api/', include('task_manager.urls')),
-
 ]
