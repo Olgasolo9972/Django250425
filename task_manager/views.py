@@ -1,68 +1,32 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.pagination import PageNumberPagination
-from django.utils import timezone
+from rest_framework import generics, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from task_manager.models import Task, SubTask
-from .serializers import TaskDetailSerializer, SubTaskSerializer
+from task_manager.serializers import TaskSerializer, TaskDetailSerializer, SubTaskSerializer
 
+# Задание 1: Generic Views для задач
+class TaskListCreateGenericView(generics.ListCreateAPIView):
+    queryset = Task.objects.all().order_by('-created_at')
+    serializer_class = TaskSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['status', 'deadline']  # фильтрация
+    search_fields = ['title', 'description']   # поиск
+    ordering_fields = ['created_at']          # сортировка
+    ordering = ['-created_at']                # сортировка по умолчанию
 
-# Задание 1: Фильтр задач по дню недели
-class TaskByWeekdayView(APIView):
-    def get(self, request):
-        weekday_param = request.query_params.get('weekday', None)
-        tasks = Task.objects.all()
+class TaskRetrieveUpdateDestroyGenericView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
 
-        if weekday_param:
-            weekday_param = weekday_param.lower()
-            days = {
-                'monday': 0,
-                'tuesday': 1,
-                'wednesday': 2,
-                'thursday': 3,
-                'friday': 4,
-                'saturday': 5,
-                'sunday': 6
-            }
-            day_index = days.get(weekday_param)
-            if day_index is not None:
-                tasks = tasks.filter(deadline__week_day=(day_index + 1))
-            else:
-                return Response({"error": "Invalid weekday"}, status=status.HTTP_400_BAD_REQUEST)
+# Задание 2: Generic Views для подзадач
+class SubTaskListCreateGenericView(generics.ListCreateAPIView):
+    queryset = SubTask.objects.all().order_by('-created_at')
+    serializer_class = SubTaskSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['status', 'deadline']  # фильтрация
+    search_fields = ['title', 'description']   # поиск
+    ordering_fields = ['created_at']           # сортировка
+    ordering = ['-created_at']                 # сортировка по умолчанию
 
-        serializer = TaskDetailSerializer(tasks, many=True)
-        return Response(serializer.data)
-
-
-# Задание 2: Пагинация подзадач
-class SubTaskPagination(PageNumberPagination):
-    page_size = 5
-    ordering = '-created_at'
-
-
-class SubTaskListView(APIView):
-    def get(self, request):
-        subtasks = SubTask.objects.all().order_by('-created_at')
-        paginator = SubTaskPagination()
-        page = paginator.paginate_queryset(subtasks, request)
-        serializer = SubTaskSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
-
-# Задание 3: Фильтр подзадач по задаче и статусу
-class SubTaskFilterView(APIView):
-    def get(self, request):
-        task_name = request.query_params.get('task_name', None)
-        status_param = request.query_params.get('status', None)
-
-        subtasks = SubTask.objects.all().order_by('-created_at')
-
-        if task_name:
-            subtasks = subtasks.filter(task__title__icontains=task_name)
-        if status_param:
-            subtasks = subtasks.filter(status=status_param)
-
-        paginator = SubTaskPagination()
-        page = paginator.paginate_queryset(subtasks, request)
-        serializer = SubTaskSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+class SubTaskRetrieveUpdateDestroyGenericView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SubTask.objects.all()
+    serializer_class = SubTaskSerializer
