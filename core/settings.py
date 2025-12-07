@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     # third-party apps
     'rest_framework',  # Django REST Framework
     'rest_framework_simplejwt', #HW_18
-
+    'drf_yasg', #HW_19
 ]
 
 MIDDLEWARE = [

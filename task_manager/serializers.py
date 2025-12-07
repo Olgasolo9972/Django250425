@@ -15,10 +15,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
 # Task сериализаторы
 class TaskSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username') #HW_19
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'categories', 'status', 'deadline', 'created_at']
-        read_only_fields = ['created_at']
+        fields = ['id', 'title', 'description', 'categories', 'status', 'deadline', 'created_at', 'owner']
+        read_only_fields = ['created_at', 'owner']
+
 
 class TaskDetailSerializer(TaskSerializer):
     subtasks = serializers.SerializerMethodField(read_only=True)
@@ -31,7 +33,9 @@ class TaskDetailSerializer(TaskSerializer):
 
 # SubTask сериализаторы
 class SubTaskSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username') #HW_19
     class Meta:
         model = SubTask
-        fields = ['id', 'title', 'description', 'task', 'status', 'deadline', 'created_at']
-        read_only_fields = ['created_at']
+        fields = ['id', 'title', 'description', 'task', 'status', 'deadline', 'created_at', 'owner']
+        read_only_fields = ['created_at', 'owner']
+
