@@ -20,6 +20,6 @@ urlpatterns = [
     path('subtasks/', SubTaskListCreateGenericView.as_view(), name='subtask-list-create-generic'),
     path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyGenericView.as_view(), name='subtask-detail-generic'),
 
-    # Роутер для категорий
+    # HW_16 Роутер для категорий
     path('', include(router.urls)),
 ]

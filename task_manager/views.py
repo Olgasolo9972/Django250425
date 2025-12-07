@@ -5,11 +5,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from task_manager.models import Task, SubTask, Category
 from task_manager.serializers import TaskSerializer, TaskDetailSerializer, SubTaskSerializer, CategorySerializer
 
+#HW_16
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['get']) #HW_16
     def count_tasks(self, request, pk=None):
         category = self.get_object()
         count = category.tasks.count()

@@ -143,7 +143,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+#HW_16
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',  # разрешаем все запросы без авторизации
@@ -152,4 +152,50 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'task_manager.pagination.TaskCursorPagination',    #HW_17
+    'PAGE_SIZE': 6,
+}
+
+# HW_17
+import os
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        # 1. Логи сервера в консоль
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        # 2. Логи HTTP в файл
+        'http_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'http_logs.log'),
+        },
+        # 3. Логи DB в файл
+        'db_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'db_logs.log'),
+        },
+    },
+    'loggers': {
+        # Логи сервера
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        # Логи HTTP-запросов
+        'django.request': {
+            'handlers': ['http_file'],
+            'level': 'INFO',
+        },
+        # Логи запросов к базе данных
+        'django.db.backends': {
+            'handlers': ['db_file'],
+            'level': 'DEBUG',
+        },
+    },
 }

@@ -10,6 +10,7 @@ STATUS_CHOICES = [
     ("done", "done"),
 ]
 
+# HW_16
 class CategoryManager(models.Manager):
     def get_queryset(self):
         # возвращаем только активные категории
@@ -17,12 +18,12 @@ class CategoryManager(models.Manager):
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    is_deleted = models.BooleanField(default=False)
-    deleted_at = models.DateTimeField(null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)            #HW_16
+    deleted_at = models.DateTimeField(null=True, blank=True)   # HW_16
     objects = CategoryManager()  # менеджер по умолчанию
     all_objects = models.Manager()  # обычный менеджер для доступа ко всем категориям
 
-    def delete(self, using=None, keep_parents=False):
+    def delete(self, using=None, keep_parents=False):       #HW_16
         # мягкое удаление
         self.is_deleted = True
         self.deleted_at = timezone.now()

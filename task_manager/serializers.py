@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.utils import timezone
 from task_manager.models import Task, SubTask, Category
 
+#HW_16
 class CategorySerializer(serializers.ModelSerializer):
     task_count = serializers.SerializerMethodField(read_only=True)
 
