@@ -1,7 +1,19 @@
-from rest_framework import generics, filters
+from rest_framework import generics, filters, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from task_manager.models import Task, SubTask
-from task_manager.serializers import TaskSerializer, TaskDetailSerializer, SubTaskSerializer
+from task_manager.models import Task, SubTask, Category
+from task_manager.serializers import TaskSerializer, TaskDetailSerializer, SubTaskSerializer, CategorySerializer
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    @action(detail=True, methods=['get'])
+    def count_tasks(self, request, pk=None):
+        category = self.get_object()
+        count = category.tasks.count()
+        return Response({'category': category.name, 'task_count': count})
 
 # Задание 1: Generic Views для задач
 class TaskListCreateGenericView(generics.ListCreateAPIView):

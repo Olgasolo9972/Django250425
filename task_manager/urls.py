@@ -1,10 +1,15 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from task_manager.views import (
     TaskListCreateGenericView,
     TaskRetrieveUpdateDestroyGenericView,
     SubTaskListCreateGenericView,
     SubTaskRetrieveUpdateDestroyGenericView,
+    CategoryViewSet
 )
+
+router = DefaultRouter()
+router.register(r'categories', CategoryViewSet, basename='category')
 
 urlpatterns = [
     # Generic Views для задач
@@ -14,4 +19,7 @@ urlpatterns = [
     # Generic Views для подзадач
     path('subtasks/', SubTaskListCreateGenericView.as_view(), name='subtask-list-create-generic'),
     path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyGenericView.as_view(), name='subtask-detail-generic'),
+
+    # Роутер для категорий
+    path('', include(router.urls)),
 ]
