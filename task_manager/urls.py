@@ -5,7 +5,12 @@ from task_manager.views import (
     TaskRetrieveUpdateDestroyGenericView,
     SubTaskListCreateGenericView,
     SubTaskRetrieveUpdateDestroyGenericView,
-    CategoryViewSet
+    CategoryViewSet,
+)
+#HW_18
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
 )
 
 router = DefaultRouter()
@@ -20,6 +25,10 @@ urlpatterns = [
     path('subtasks/', SubTaskListCreateGenericView.as_view(), name='subtask-list-create-generic'),
     path('subtasks/<int:pk>/', SubTaskRetrieveUpdateDestroyGenericView.as_view(), name='subtask-detail-generic'),
 
-    # HW_16 Роутер для категорий
+    # Category Router
     path('', include(router.urls)),
+
+    # JWT токены #HW_18
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

@@ -46,6 +46,8 @@ INSTALLED_APPS = [
 
     # third-party apps
     'rest_framework',  # Django REST Framework
+    'rest_framework_simplejwt', #HW_18
+
 ]
 
 MIDDLEWARE = [
@@ -144,17 +146,39 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #HW_16
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.AllowAny',  # разрешаем все запросы без авторизации
+#     ],
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.SessionAuthentication',
+#         'rest_framework.authentication.BasicAuthentication',
+#     ],
+#     'DEFAULT_PAGINATION_CLASS': 'task_manager.pagination.TaskCursorPagination',    #HW_17
+#     'PAGE_SIZE': 6,
+# }
+
+#HW_18
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # разрешаем все запросы без авторизации
+        'rest_framework.permissions.IsAuthenticated',  # глобальный пермишен
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'task_manager.pagination.TaskCursorPagination',    #HW_17
-    'PAGE_SIZE': 6,
+    'DEFAULT_PAGINATION_CLASS': 'task_manager.pagination.TaskCursorPagination',
+    'PAGE_SIZE': 5,   # глобальная пагинация
 }
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
 
 # HW_17
 import os
