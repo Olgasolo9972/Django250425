@@ -53,6 +53,14 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
 ]
+# HW_21
+# Для тестового сервера (консольный backend)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Можно указать от кого будет письмо
+DEFAULT_FROM_EMAIL = 'noreply@taskmanager.local'
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
