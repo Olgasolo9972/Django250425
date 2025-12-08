@@ -7,11 +7,15 @@ from task_manager.views import (
     SubTaskRetrieveUpdateDestroyGenericView,
     CategoryViewSet,
     MyTasksListView,
+    RegisterView, #HW_20
+    LogoutView, #HW_20
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
+
+
 
 # Swagger setup
 schema_view = get_schema_view(
@@ -50,4 +54,9 @@ urlpatterns = [
 
     # Задачи текущего пользователя
     path('my-tasks/', MyTasksListView.as_view(), name='my-tasks'),
+
+    #HW_20
+    path("register/", RegisterView.as_view(), name="register"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+
 ]

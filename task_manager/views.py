@@ -3,8 +3,30 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from task_manager.models import Task, SubTask, Category
-from task_manager.serializers import TaskSerializer, TaskDetailSerializer, SubTaskSerializer, CategorySerializer
+from task_manager.serializers import TaskSerializer, TaskDetailSerializer, SubTaskSerializer, CategorySerializer, RegisterSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, BasePermission
+#HW_20
+from django.contrib.auth.models import User
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+
+#HW_20
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+
+#HW_20
+class LogoutView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh = request.data["refresh"]
+            token = RefreshToken(refresh)
+            token.blacklist()
+            return Response({"message": "Logged out"}, status=200)
+        except Exception:
+            return Response({"error": "Invalid refresh token"}, status=400)
 
 
 # Custom permission: только владелец может изменять/удалять объект
@@ -17,7 +39,8 @@ class IsOwner(BasePermission):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny] #HW_20
 
     @action(detail=True, methods=['get'])
     def count_tasks(self, request, pk=None):
